@@ -4,13 +4,13 @@ services:
   backend:
     build:
       context: ./flask_react_app
-      dockerfile: Dockerfile.backend
+      dockerfile: Dockerfile
     ports:
       - "5000:5000"
 
   frontend:
     build:
       context: ./client
-      dockerfile: Dockerfile.frontend
+      dockerfile: Dockerfile
     ports:
       - "3000:80"
