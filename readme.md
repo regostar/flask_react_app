@@ -14,6 +14,9 @@ This project demonstrates a CI/CD pipeline using GitHub Actions to build, test, 
 - [Usage](#usage)
 - [CI/CD Pipeline](#cicd-pipeline)
 - [Project Structure](#project-structure)
+- [Deployment (Optional)](#deployment-optional)
+  - [Deploy to Google Compute Engine (GCE)](#deploy-to-google-compute-engine-gce)
+  - [Deploy to Google Kubernetes Engine (GKE)](#deploy-to-google-kubernetes-engine-gke)
 - [Contributing](#contributing)
 - [License](#license)
 - [Contact](#contact)
@@ -145,6 +148,103 @@ The project includes a GitHub Actions workflow configured to:
 └── ...              # Additional configuration and support files
 ```
 
+
+---
+
+## Deployment (Optional)
+
+### Deploy to Google Compute Engine (GCE)
+
+1. **Authenticate with GCP:**
+   ```bash
+   gcloud auth login
+   gcloud config set project [YOUR_PROJECT_ID]
+   ```
+
+2. **Enable required services:**
+   ```bash
+   gcloud services enable compute.googleapis.com
+   ```
+
+3. **Create a VM instance on GCE:**
+   ```bash
+   gcloud compute instances create flask-react-vm \
+       --machine-type=e2-medium \
+       --image-family=debian-11 \
+       --image-project=debian-cloud \
+       --tags=http-server,https-server
+   ```
+
+4. **SSH into the instance and install Docker:**
+   ```bash
+   gcloud compute ssh flask-react-vm
+   sudo apt update && sudo apt install -y docker.io docker-compose
+   ```
+
+5. **Clone the repository on the VM:**
+   ```bash
+   git clone https://github.com/regostar/flask_react_app.git
+   cd flask_react_app
+   ```
+
+6. **Run the application using Docker Compose:**
+   ```bash
+   docker-compose up --build -d
+   ```
+
+7. **Allow external access to the instance:**
+   ```bash
+   gcloud compute firewall-rules create allow-http \
+       --allow=tcp:80,tcp:3000,tcp:5000 \
+       --target-tags=http-server
+   ```
+
+---
+
+### Deploy to Google Kubernetes Engine (GKE)
+
+1. **Enable required GCP services:**
+   ```bash
+   gcloud services enable container.googleapis.com
+   ```
+
+2. **Create a GKE cluster:**
+   ```bash
+   gcloud container clusters create flask-react-cluster \
+       --num-nodes=2 \
+       --zone=us-central1-a
+   ```
+
+3. **Authenticate `kubectl` with GKE:**
+   ```bash
+   gcloud container clusters get-credentials flask-react-cluster --zone us-central1-a
+   ```
+
+4. **Build and push Docker images to Google Container Registry (GCR):**
+   ```bash
+   docker build -t gcr.io/[YOUR_PROJECT_ID]/flask-backend:latest backend
+   docker build -t gcr.io/[YOUR_PROJECT_ID]/react-frontend:latest frontend
+
+   docker push gcr.io/[YOUR_PROJECT_ID]/flask-backend:latest
+   docker push gcr.io/[YOUR_PROJECT_ID]/react-frontend:latest
+   ```
+
+5. **Deploy to Kubernetes:**
+   ```bash
+   kubectl apply -f k8s/backend-deployment.yaml
+   kubectl apply -f k8s/frontend-deployment.yaml
+   kubectl apply -f k8s/backend-service.yaml
+   kubectl apply -f k8s/frontend-service.yaml
+   ```
+
+6. **Get the external IP:**
+   ```bash
+   kubectl get services
+   ```
+
+7. **Access the application using the external IP assigned to the frontend service.**
+
+---
 ---
 
 ## Contributing
