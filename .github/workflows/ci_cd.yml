@@ -26,7 +26,7 @@ jobs:
     - name: Run Python tests
       run: |
         cd flask_react_app
-        python -m unittest test_app.py
+        pytest
 
     - name: Set up Node.js
       uses: actions/setup-node@v2
