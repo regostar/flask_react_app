@@ -1,6 +1,7 @@
-# Flask-React CI/CD Demo
+# Flask-React-Docker-Github CI/CD Demo
 
-This project demonstrates a CI/CD pipeline using GitHub Actions to build, test, and deploy a Dockerized full-stack web application. The backend is built with Flask, while the frontend leverages React. This setup serves as a starting point for building scalable applications with automated workflows.
+
+This project demonstrates a CI/CD pipeline using GitHub Actions to build, test, and deploy a Dockerized full-stack web application. The backend is built with Flask, while the frontend leverages React. The application supports **Docker Compose** for streamlined development but also allows running the backend and frontend separately using individual Dockerfiles.
 
 ## Table of Contents
 
@@ -8,6 +9,8 @@ This project demonstrates a CI/CD pipeline using GitHub Actions to build, test, 
 - [Features](#features)
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
+  - [Using Docker Compose (Recommended)](#using-docker-compose-recommended)
+  - [Using Separate Dockerfiles](#using-separate-dockerfiles)
 - [Usage](#usage)
 - [CI/CD Pipeline](#cicd-pipeline)
 - [Project Structure](#project-structure)
@@ -17,11 +20,12 @@ This project demonstrates a CI/CD pipeline using GitHub Actions to build, test, 
 
 ## Overview
 
-The primary goal of this repository is to provide an example of how to integrate a Flask and React application using Docker, along with a fully automated CI/CD pipeline via GitHub Actions. This setup ensures that every change is automatically tested, built, and deployed.
+The primary goal of this repository is to provide an example of how to integrate a Flask and React application using Docker and Docker Compose, along with a fully automated CI/CD pipeline via GitHub Actions. This setup ensures that every change is automatically tested, built, and deployed.
 
 ## Features
 
-- **Dockerized Application**: Both backend and frontend are containerized for consistency across different environments.
+- **Dockerized Application**: Supports both Docker Compose and standalone Dockerfile-based builds.
+- **Docker Compose Support**: Runs both the Flask backend and React frontend as separate services.
 - **CI/CD Pipeline**: Automated workflows using GitHub Actions manage building, testing, and deployment.
 - **Full-Stack Integration**: Seamless communication between the Flask backend and React frontend.
 - **Scalable Architecture**: Easy to extend and customize for more complex projects.
@@ -31,48 +35,94 @@ The primary goal of this repository is to provide an example of how to integrate
 Before running this project, ensure you have the following installed:
 
 - [Docker](https://docs.docker.com/get-docker/)
+- [Docker Compose](https://docs.docker.com/compose/)
 - [Git](https://git-scm.com/)
 - A GitHub account (for accessing GitHub Actions)
-- Optionally, [Docker Compose](https://docs.docker.com/compose/) if you plan to run multiple containers together.
+
+---
 
 ## Installation
 
-1. **Clone the Repository:**
+### Using Docker Compose (Recommended)
 
+1. **Clone the Repository:**
    ```bash
    git clone https://github.com/regostar/flask_react_app.git
    cd flask_react_app
    ```
 
-2. **Build the Docker Image:**
-
-   If you are using a single Dockerfile for the entire application:
-
+2. **Start the Application using Docker Compose:**
    ```bash
-   docker build -t flask-react-app .
+   docker-compose up --build
+   ```
+   - This command builds the backend and frontend images, runs both containers, and links them together.
+
+3. **Stop the Application:**
+   ```bash
+   docker-compose down
    ```
 
-   If separate Dockerfiles are used for the backend and frontend, refer to each directory's README for specific build instructions.
+### Using Separate Dockerfiles
+
+If you prefer to run the backend and frontend separately, follow these steps:
+
+1. **Build and Run the Flask Backend:**
+   ```bash
+   cd backend
+   docker build -t flask-backend .
+   docker run -p 5000:5000 flask-backend
+   ```
+
+2. **Build and Run the React Frontend:**
+   ```bash
+   cd frontend
+   docker build -t react-frontend .
+   docker run -p 3000:3000 react-frontend
+   ```
+
+**Note:** Ensure the backend is running before starting the frontend, as the frontend fetches data from the backend.
+
+---
 
 ## Usage
 
-1. **Run the Docker Container:**
-
+### Running with Docker Compose:
+1. **Start the Application:**
    ```bash
-   docker run -p 5000:5000 flask-react-app
+   docker-compose up
    ```
 
 2. **Access the Application:**
+   - **Frontend:** [http://localhost:3000](http://localhost:3000)
+   - **Backend API:** [http://localhost:5000](http://localhost:5000)
 
-   Open your browser and navigate to [http://localhost:5000](http://localhost:5000) to view the app.
+3. **Rebuild after making changes:**
+   ```bash
+   docker-compose up --build
+   ```
+
+### Running with Separate Dockerfiles:
+1. **Start the backend separately:**
+   ```bash
+   docker run -p 5000:5000 flask-backend
+   ```
+
+2. **Start the frontend separately:**
+   ```bash
+   docker run -p 3000:3000 react-frontend
+   ```
+
+---
 
 ## CI/CD Pipeline
 
+![image](https://github.com/user-attachments/assets/2a65efc7-2982-4a77-ab0c-c351bad95b03)
+
 The project includes a GitHub Actions workflow configured to:
 
-- **Build** the Docker image on every commit.
-- **Test** the application to ensure stability.
-- **Deploy** (or push) the Docker image on successful builds.
+- **Build** the Docker images on every commit.
+- **Run tests** to ensure application stability.
+- **Deploy** (or push) the Docker images on successful builds.
 
 ### Workflow Customization
 
@@ -80,16 +130,22 @@ The project includes a GitHub Actions workflow configured to:
 - Modify environment variables and secrets in your repository settings for deployment.
 - Customize the workflow steps as needed to suit your deployment environment.
 
+---
+
 ## Project Structure
 
 ```plaintext
 ├── backend          # Flask backend code
+│   ├── Dockerfile   # Backend-specific Dockerfile
 ├── frontend         # React frontend code
+│   ├── Dockerfile   # Frontend-specific Dockerfile
 ├── .github          # GitHub Actions workflows
-├── Dockerfile       # Docker configuration (or separate Dockerfiles for backend/frontend)
+├── docker-compose.yml # Docker Compose configuration
 ├── README.md        # Project documentation
 └── ...              # Additional configuration and support files
 ```
+
+---
 
 ## Contributing
 
@@ -112,10 +168,15 @@ Contributions are welcome! To contribute:
 
 Please ensure your code adheres to the project's standards and includes tests where applicable.
 
+---
+
 ## License
 
 This project is licensed under the [MIT License](LICENSE).
 
+---
+
 ## Contact
 
-For any questions or support, please contact **Your Name** or open an issue in this repository.
+
+For any questions or support, please contact renugopal17.siva@gmail.com or open an issue in this repository.
